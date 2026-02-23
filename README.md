@@ -10,7 +10,7 @@ Gestión de usuarios (registro e inicio de sesión)
 Sistema básico de suscripciones
 Recomendación simple de contenido
 Streaming en diferentes calidades
-Protección básica de contenido (DRM simple)
+Protección de contenido (DRM simple)
 
 Funcionalidades:
 Gestión de Usuarios
