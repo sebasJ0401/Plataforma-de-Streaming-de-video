@@ -1,5 +1,7 @@
 # Plataforma-de-Streaming-de-video
 Proyecto de diseño de patrones de software
+Johan Sebastian Jaimes Burbano
+Alejandra Mayorga Barboza
 
 
 Alcance del Proyecto
