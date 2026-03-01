@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Subir Video — StreamVault{% endblock %}
+
+{% block content %}
+<div class="upload-wrap">
+    <h1 class="form-title" style="text-align:left; font-size:2rem; margin-bottom:0.5rem;">↑ Subir Video</h1>
+    <p style="color:var(--text-2); margin-bottom:2rem;">Comparte tu contenido con la comunidad</p>
+
+    <div class="error-msg" id="err"></div>
+    <div class="success-msg" id="succ"></div>
+
+    <form id="upload-form" enctype="multipart/form-data">
+        <!-- TITLE & CATEGORY -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Título del Video *</label>
+                <input type="text" name="title" class="form-input" placeholder="Mi video increíble" required>
+            </div>
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Categoría *</label>
+                <select name="category" class="form-select" required>
+                    <option value="">Seleccionar categoría</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea name="description" class="form-textarea" placeholder="Describe tu video..."></textarea>
+        </div>
+
+        <!-- VIDEO UPLOAD AREAS -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+            <div>
+                <label class="form-label">Video 480p (Estándar)</label>
+                <label class="upload-area" for="video_480p">
+                    <input type="file" id="video_480p" name="video_480p" accept="video/*" style="display:none;">
+                    <div class="upload-icon">📹</div>
+                    <div class="upload-text">Arrastra o <strong>selecciona</strong> video 480p</div>
+                    <div style="font-size:0.75rem; color:var(--text-3); margin-top:8px;">MP4, WebM, MKV hasta 500MB</div>
+                </label>
+            </div>
+            <div>
+                <label class="form-label">Video 720p HD (Opcional)</label>
+                <label class="upload-area" for="video_720p">
+                    <input type="file" id="video_720p" name="video_720p" accept="video/*" style="display:none;">
+                    <div class="upload-icon">🎬</div>
+                    <div class="upload-text">Arrastra o <strong>selecciona</strong> video 720p</div>
+                    <div style="font-size:0.75rem; color:var(--text-3); margin-top:8px;">Recomendado para usuarios Premium</div>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Miniatura (Thumbnail)</label>
+            <label class="upload-area" for="thumbnail" style="padding:1.5rem;">
+                <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="display:none;">
+                <div class="upload-text">🖼️ Arrastra o <strong>selecciona</strong> una imagen</div>
+                <div style="font-size:0.75rem; color:var(--text-3); margin-top:4px;">JPG, PNG recomendado 16:9</div>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <input type="checkbox" name="is_premium" value="true" id="is_premium_toggle">
+                <span class="form-label" style="margin:0; cursor:pointer;">Contenido Premium (solo para suscriptores)</span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary submit-btn" style="width:100%; justify-content:center; padding:1rem; font-size:1rem;">
+            ↑ Subir Video
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Fix is_premium checkbox — needs to be 'true' string
+document.getElementById('is_premium_toggle').addEventListener('change', function() {
+    this.value = this.checked ? 'true' : 'false';
+});
+</script>
+{% endblock %}

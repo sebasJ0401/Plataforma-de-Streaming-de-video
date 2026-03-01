@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ video.title }} — StreamVault{% endblock %}
+
+{% block content %}
+<div class="watch-layout">
+    <!-- MAIN PLAYER -->
+    <div>
+        <div class="player-wrap">
+            <video
+                id="main-player"
+                class="video-player"
+                controls
+                controlsList="nodownload nofullscreen"
+                disablePictureInPicture
+                oncontextmenu="return false"
+                data-video-id="{{ video.id }}"
+                data-has-480="{{ 'true' if video.filename_480p else 'false' }}"
+                data-has-720="{{ 'true' if video.filename_720p else 'false' }}"
+                preload="metadata"
+            >
+                Tu navegador no soporta reproducción de video.
+            </video>
+        </div>
+        <div class="player-controls-bar">
+            <div class="quality-btns">
+                <span style="font-size:0.78rem; color:var(--text-3); margin-right:4px;">Calidad:</span>
+                {% if video.filename_480p %}
+                <button class="quality-btn {{ 'active' if not video.filename_720p }}" data-quality="480p">480p</button>
+                {% endif %}
+                {% if video.filename_720p %}
+                <button class="quality-btn active" data-quality="720p">720p HD</button>
+                {% endif %}
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-3);">
+                🔒 Protegido por StreamVault DRM
+            </div>
+        </div>
+
+        <div class="video-detail">
+            <h1 class="video-detail-title">{{ video.title }}</h1>
+            <div class="video-detail-meta">
+                <span class="category-tag">{{ video.category }}</span>
+                <span class="view-count">{{ video.views }} vistas</span>
+                {% if video.is_premium %}
+                <span class="sub-badge">PRO</span>
+                {% endif %}
+                <span style="color:var(--text-3); font-size:0.8rem;">{{ video.created_at.strftime('%d %b %Y') }}</span>
+            </div>
+            {% if video.description %}
+            <p class="video-desc">{{ video.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- SIDEBAR: RECOMMENDATIONS -->
+    <div>
+        <div class="sidebar-title">Más como este</div>
+        {% if recommended %}
+        <div class="rec-list">
+            {% for rec in recommended %}
+            <a href="/watch/{{ rec.id }}" class="rec-card">
+                <div class="rec-thumb">
+                    {% if rec.thumbnail %}
+                    <img src="/static/uploads/{{ rec.thumbnail }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                    🎬
+                    {% endif %}
+                </div>
+                <div class="rec-info">
+                    <div class="rec-title">{{ rec.title }}</div>
+                    <div class="rec-meta">{{ rec.views }} vistas · {{ rec.category }}{% if rec.is_premium %} · 🔑 PRO{% endif %}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="color:var(--text-3); font-size:0.875rem; text-align:center; padding:2rem 0;">
+            No hay recomendaciones por ahora
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
