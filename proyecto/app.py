@@ -1,4 +1,4 @@
-from patterns import DatabaseConfig, UserFactory, VideoFactory
+from patterns import DatabaseConfig, UserFactory, VideoFactory, get_subscription_factory
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, Response, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -142,7 +142,18 @@ def browse():
 def watch(video_id):
     user = get_current_user()
     video = Video.query.get_or_404(video_id)
-    if video.is_premium and user.subscription == 'free':
+
+    # ── Abstract Factory ──────────────────────────────────────────────────────
+    # Según el plan del usuario se obtiene la familia correcta de objetos.
+    # FreeSubscriptionFactory   → player solo 480p, sin acceso premium.
+    # PremiumSubscriptionFactory → player 480p+720p, acceso total.
+    factory = get_subscription_factory(user.subscription)
+    player  = factory.create_player()   # VideoPlayer
+    access  = factory.create_access()   # ContentAccess
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # Verificar acceso usando el objeto creado por el factory
+    if video.is_premium and not access.can_watch_premium():
         return render_template('upgrade.html', user=user, video=video)
 
     video.views += 1
@@ -165,7 +176,14 @@ def watch(video_id):
         .filter(Video.category == video.category, Video.id != video_id)\
         .order_by(Video.views.desc()).limit(6).all()
 
-    return render_template('watch.html', user=user, video=video, recommended=recommended)
+    return render_template('watch.html',
+        user=user,
+        video=video,
+        recommended=recommended,
+        available_qualities=player.get_available_qualities(),   # ← del factory
+        default_quality=player.get_default_quality(),           # ← del factory
+        access_label=access.get_access_label()                  # ← del factory
+    )
 
 @app.route('/profile')
 @login_required

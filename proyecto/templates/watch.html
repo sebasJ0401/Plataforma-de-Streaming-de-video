@@ -24,15 +24,13 @@
         <div class="player-controls-bar">
             <div class="quality-btns">
                 <span style="font-size:0.78rem; color:var(--text-3); margin-right:4px;">Calidad:</span>
-                {% if video.filename_480p %}
-                <button class="quality-btn {{ 'active' if not video.filename_720p }}" data-quality="480p">480p</button>
-                {% endif %}
-                {% if video.filename_720p %}
-                <button class="quality-btn active" data-quality="720p">720p HD</button>
-                {% endif %}
+                {% for quality in available_qualities %}
+                <button class="quality-btn {{ 'active' if quality == default_quality }}"
+                        data-quality="{{ quality }}">{{ quality }}{% if quality == '720p' %} HD{% endif %}</button>
+                {% endfor %}
             </div>
             <div style="font-size:0.75rem; color:var(--text-3);">
-                🔒 Protegido por StreamVault DRM
+                🔒 {{ access_label }} — Protegido por StreamVault DRM
             </div>
         </div>
 
