@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StreamVault{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="/" class="logo">
+                <span class="logo-icon">▶</span>
+                <span class="logo-text">Stream<strong>Vault</strong></span>
+            </a>
+            <div class="nav-links">
+                <a href="/browse" class="nav-link">Explorar</a>
+                {% if user %}
+                    {% if user.subscription == 'free' %}
+                    <a href="/pricing" class="nav-link premium-badge">✦ Premium</a>
+                    {% endif %}
+                    <a href="/upload" class="nav-link">Subir</a>
+                    <div class="nav-user">
+                        <div class="avatar-pill">
+                            <span class="avatar-letter">{{ user.username[0].upper() }}</span>
+                            <span class="username-text">{{ user.username }}</span>
+                            {% if user.subscription == 'premium' %}
+                            <span class="sub-badge">PRO</span>
+                            {% endif %}
+                        </div>
+                        <div class="dropdown">
+                            <a href="/profile">Mi Perfil</a>
+                            <a href="/dashboard">Mis Videos</a>
+                            <a href="/api/logout" class="logout-link">Cerrar Sesión</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="/pricing" class="nav-link">Precios</a>
+                    <a href="/login" class="nav-link">Ingresar</a>
+                    <a href="/register" class="btn-nav">Comenzar</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="logo-text">Stream<strong>Vault</strong> © 2026</span>
+            <p>Plataforma de streaming segura con protección de contenido</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

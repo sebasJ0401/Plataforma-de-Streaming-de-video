@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil — StreamVault{% endblock %}
+
+{% block content %}
+<div class="profile-wrap">
+    <div class="profile-header">
+        <div class="profile-avatar">{{ user.username[0].upper() }}</div>
+        <div class="profile-info">
+            <h2>{{ user.username }}</h2>
+            <p>{{ user.email }}</p>
+            <div class="subscription-chip {{ 'premium' if user.subscription != 'free' else 'free' }}">
+                {% if user.subscription == 'premium' %}✦ Premium{% elif user.subscription == 'admin' %}🛡 Admin{% else %}Gratis{% endif %}
+            </div>
+            {% if user.subscription == 'free' %}
+            <a href="/pricing" class="btn btn-gold" style="margin-top:1rem; display:inline-flex;">Upgrade a Premium</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE FORM -->
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2rem; margin-bottom:2rem;">
+        <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Editar Perfil</h3>
+        <form id="profile-form">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">Nombre de usuario</label>
+                    <input type="text" name="username" class="form-input" value="{{ user.username }}">
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">Nueva contraseña</label>
+                    <input type="password" name="password" class="form-input" placeholder="Dejar vacío para no cambiar">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-secondary" style="margin-top:1.2rem;">Guardar Cambios</button>
+        </form>
+    </div>
+
+    <!-- WATCH HISTORY -->
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+        <div style="padding:1.5rem 2rem; border-bottom:1px solid var(--border);">
+            <h3 style="font-size:1.1rem;">Historial de Reproducción</h3>
+        </div>
+        {% if history %}
+        <div>
+            {% for h in history %}
+            <a href="/watch/{{ h.video_id }}" style="display:flex; align-items:center; gap:1rem; padding:1rem 2rem; border-bottom:1px solid var(--border); text-decoration:none; color:inherit; transition:background 0.15s;">
+                <div style="width:40px; height:40px; background:var(--bg-4); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">🎬</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:0.9rem;">{{ h.video.title if h.video else 'Video eliminado' }}</div>
+                    <div style="font-size:0.78rem; color:var(--text-3);">{{ h.watched_at.strftime('%d %b %Y · %H:%M') }}</div>
+                </div>
+                <span style="color:var(--text-3); font-size:0.8rem;">▶</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:3rem;">
+            <div class="empty-icon">📺</div>
+            <h3>Sin historial</h3>
+            <p><a href="/browse" style="color:var(--accent);">Explorar videos</a> para comenzar</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

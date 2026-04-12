@@ -1,0 +1,129 @@
+@startuml Decorator_VideoQuery
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #0e1017
+skinparam class {
+    BackgroundColor #161820
+    BorderColor #e63946
+    FontColor #f0f2f8
+    ArrowColor #e63946
+}
+skinparam note {
+    BackgroundColor #1e2130
+    BorderColor #5a607a
+    FontColor #9aa0b8
+}
+skinparam interface {
+    BackgroundColor #1e2130
+    BorderColor #FAC775
+    FontColor #f0f2f8
+}
+
+' ─── INTERFAZ BASE ────────────────────────────────────
+
+interface VideoQuery {
+    + execute() : list
+}
+
+note top of VideoQuery
+  **Interfaz común**
+  Tanto la consulta base como
+  todos los decoradores implementan
+  esta interfaz. El cliente solo
+  conoce VideoQuery.
+end note
+
+' ─── IMPLEMENTACIÓN BASE ─────────────────────────────
+
+class BaseVideoQuery {
+    + execute() : list
+}
+
+note right of BaseVideoQuery
+  Sin filtros.
+  Devuelve todos los videos
+  ordenados por fecha.
+end note
+
+' ─── DECORATOR ABSTRACTO ─────────────────────────────
+
+abstract class VideoQueryDecorator {
+    # _query : VideoQuery
+    --
+    + __init__(query: VideoQuery)
+    + execute() : list
+}
+
+note right of VideoQueryDecorator
+  **Decorator abstracto**
+  Envuelve cualquier VideoQuery
+  y delega execute() agregando
+  su propio filtro encima.
+end note
+
+' ─── DECORADORES CONCRETOS ───────────────────────────
+
+class CategoryFilterDecorator {
+    - _category : str
+    --
+    + __init__(query: VideoQuery, category: str)
+    + execute() : list
+}
+
+class SearchFilterDecorator {
+    - _search : str
+    --
+    + __init__(query: VideoQuery, search: str)
+    + execute() : list
+}
+
+class PremiumFilterDecorator {
+    - _subscription : str
+    --
+    + __init__(query: VideoQuery, subscription: str)
+    + execute() : list
+}
+
+class PopularFilterDecorator {
+    --
+    + __init__(query: VideoQuery)
+    + execute() : list
+}
+
+' ─── CLIENTE ─────────────────────────────────────────
+
+class "/browse" as browse {
+    query = BaseVideoQuery()
+    query = CategoryFilterDecorator(query, category)
+    query = SearchFilterDecorator(query, search)
+    query = PremiumFilterDecorator(query, subscription)
+    query = PopularFilterDecorator(query)
+    videos = query.execute()
+}
+
+note bottom of browse
+  Antes:
+  query = Video.query
+  if category: query.filter_by(...)
+  if search: query.filter(...)
+
+  Después:
+  Cada filtro es un Decorator
+  encadenado sobre el anterior.
+  Se activan solo si el parámetro
+  está presente.
+end note
+
+' ─── RELACIONES ──────────────────────────────────────
+
+VideoQuery              <|.. BaseVideoQuery
+VideoQuery              <|.. VideoQueryDecorator
+VideoQueryDecorator     <|-- CategoryFilterDecorator
+VideoQueryDecorator     <|-- SearchFilterDecorator
+VideoQueryDecorator     <|-- PremiumFilterDecorator
+VideoQueryDecorator     <|-- PopularFilterDecorator
+VideoQueryDecorator     o-->  VideoQuery : envuelve
+
+browse ..> VideoQuery : usa interfaz común
+
+@enduml

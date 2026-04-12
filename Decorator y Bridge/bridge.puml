@@ -1,0 +1,147 @@
+@startuml Bridge_Notifications
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #0e1017
+skinparam class {
+    BackgroundColor #161820
+    BorderColor #e63946
+    FontColor #f0f2f8
+    ArrowColor #e63946
+}
+skinparam note {
+    BackgroundColor #1e2130
+    BorderColor #5a607a
+    FontColor #9aa0b8
+}
+skinparam interface {
+    BackgroundColor #1e2130
+    BorderColor #FAC775
+    FontColor #f0f2f8
+}
+
+' ══════════════════════════════════════════════════════
+' LADO IMPLEMENTACIÓN — CÓMO se envía
+' ══════════════════════════════════════════════════════
+
+interface NotificationSender {
+    + send(recipient: str,\n       subject: str,\n       body: str) : None
+}
+
+note top of NotificationSender
+  **Interfaz de implementación**
+  Define CÓMO se envía el mensaje.
+  La abstracción no sabe cuál
+  implementación tiene por debajo.
+end note
+
+class ConsoleNotificationSender {
+    + send(recipient, subject, body) : None
+}
+
+class EmailNotificationSender {
+    + send(recipient, subject, body) : None
+}
+
+class PushNotificationSender {
+    + send(recipient, subject, body) : None
+}
+
+' ══════════════════════════════════════════════════════
+' LADO ABSTRACCIÓN — QUÉ se notifica
+' ══════════════════════════════════════════════════════
+
+abstract class Notification {
+    # _sender : NotificationSender
+    --
+    + __init__(sender: NotificationSender)
+    + notify(recipient: str) : None
+}
+
+note top of Notification
+  **Abstracción del Bridge**
+  Define QUÉ evento se notifica.
+  Delega el envío al _sender
+  sin saber qué canal usa.
+end note
+
+class RegisterNotification {
+    + notify(recipient: str) : None
+}
+
+note right of RegisterNotification
+  subject: "Bienvenido a StreamVault"
+  body: cuenta creada exitosamente
+end note
+
+class VideoUploadedNotification {
+    - _video_title : str
+    --
+    + __init__(sender, video_title: str)
+    + notify(recipient: str) : None
+}
+
+note right of VideoUploadedNotification
+  subject: "Video publicado"
+  body: título del video disponible
+end note
+
+class UpgradeNotification {
+    - _plan : str
+    --
+    + __init__(sender, plan: str)
+    + notify(recipient: str) : None
+}
+
+note right of UpgradeNotification
+  subject: "Plan actualizado"
+  body: disfruta el contenido premium
+end note
+
+' ─── CLIENTES ────────────────────────────────────────
+
+class "/api/register" as reg {
+    RegisterNotification(
+      ConsoleNotificationSender()
+    ).notify(username)
+}
+
+class "/api/upload" as upl {
+    VideoUploadedNotification(
+      ConsoleNotificationSender(), title
+    ).notify(username)
+}
+
+class "/api/upgrade" as upg {
+    UpgradeNotification(
+      ConsoleNotificationSender(), plan
+    ).notify(username)
+}
+
+' ─── RELACIONES ──────────────────────────────────────
+
+NotificationSender  <|..  ConsoleNotificationSender
+NotificationSender  <|..  EmailNotificationSender
+NotificationSender  <|..  PushNotificationSender
+
+Notification        <|--  RegisterNotification
+Notification        <|--  VideoUploadedNotification
+Notification        <|--  UpgradeNotification
+
+Notification        o-->  NotificationSender : _sender (Bridge)
+
+reg ..> RegisterNotification        : usa
+upl ..> VideoUploadedNotification   : usa
+upg ..> UpgradeNotification         : usa
+
+note bottom of Notification
+  El Bridge conecta las dos
+  jerarquías independientes.
+  Para cambiar el canal de
+  ConsoleNotificationSender
+  a EmailNotificationSender
+  solo se cambia el parámetro
+  al crear la notificación.
+  No se toca ninguna otra clase.
+end note
+
+@enduml
