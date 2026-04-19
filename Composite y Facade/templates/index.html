@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}StreamVault — Plataforma de Streaming{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+        <div class="hero-content fade-up">
+            <div class="hero-eyebrow">✦ Streaming Seguro y de Alta Calidad</div>
+            <h1 class="hero-title">
+                Tu contenido,<br>
+                <span>protegido</span> y<br>
+                siempre disponible
+            </h1>
+            <p class="hero-sub">
+                Descubre miles de videos en diferentes calidades. Sistema DRM integrado, suscripciones flexibles y recomendaciones inteligentes.
+            </p>
+            <div class="hero-cta">
+                {% if user %}
+                <a href="/browse" class="btn btn-primary">▶ Explorar Videos</a>
+                <a href="/upload" class="btn btn-secondary">↑ Subir Contenido</a>
+                {% else %}
+                <a href="/register" class="btn btn-primary">✦ Comenzar Gratis</a>
+                <a href="/browse" class="btn btn-secondary">Explorar Catálogo</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="hero-visual fade-up-2">
+            {% if featured %}
+                {% for video in featured[:3] %}
+                <div class="hero-card" onclick="location.href='/watch/{{ video.id }}'">
+                    <div class="hero-card-thumb">
+                        {% if video.thumbnail %}
+                        <img src="/static/uploads/{{ video.thumbnail }}" alt="{{ video.title }}" style="width:100%;height:100%;object-fit:cover;">
+                        {% else %}
+                        <span>{{ '🎬' if loop.first else '🎥' }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="play-overlay"><div class="play-btn-big">▶</div></div>
+                    <div class="hero-card-info">
+                        <div class="hero-card-title">{{ video.title[:50] }}</div>
+                        <div class="hero-card-meta">{{ video.views }} vistas · {{ video.category }}</div>
+                    </div>
+                    {% if video.is_premium %}
+                    <div class="premium-lock">PRO</div>
+                    {% endif %}
+                </div>
+                {% if loop.index == 1 %}{% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="hero-card">
+                    <div class="hero-card-thumb">🎬</div>
+                    <div class="hero-card-info">
+                        <div class="hero-card-title">Sube tu primer video</div>
+                        <div class="hero-card-meta">Comienza ahora</div>
+                    </div>
+                </div>
+                <div class="hero-card">
+                    <div class="hero-card-thumb">🎥</div>
+                    <div class="hero-card-info">
+                        <div class="hero-card-title">Explorar contenido</div>
+                        <div class="hero-card-meta">Sin límites</div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+    <div class="stats-inner">
+        <div>
+            <div class="stat-num">HD</div>
+            <div class="stat-label">Streaming 480p / 720p</div>
+        </div>
+        <div>
+            <div class="stat-num">DRM</div>
+            <div class="stat-label">Protección de contenido</div>
+        </div>
+        <div>
+            <div class="stat-num">2</div>
+            <div class="stat-label">Planes de suscripción</div>
+        </div>
+        <div>
+            <div class="stat-num">IA</div>
+            <div class="stat-label">Recomendaciones inteligentes</div>
+        </div>
+    </div>
+</div>
+
+<!-- FEATURED VIDEOS -->
+{% if featured %}
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">🔥 Más <span>Populares</span></h2>
+        <a href="/browse" class="see-all">Ver todo →</a>
+    </div>
+    <div class="video-grid">
+        {% for video in featured %}
+        <a href="/watch/{{ video.id }}" class="video-card">
+            <div class="video-thumb">
+                {% if video.thumbnail %}
+                <img src="/static/uploads/{{ video.thumbnail }}" alt="{{ video.title }}">
+                {% else %}
+                <div class="thumb-placeholder">🎬</div>
+                {% endif %}
+                <div class="video-thumb-overlay">
+                    <div class="play-circle">▶</div>
+                </div>
+                {% if video.is_premium %}
+                <div class="premium-lock">PRO</div>
+                {% endif %}
+            </div>
+            <div class="video-info">
+                <div class="video-title">{{ video.title }}</div>
+                <div class="video-meta">
+                    <span class="category-tag">{{ video.category }}</span>
+                    <span>{{ video.views }} vistas</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- CATEGORIES -->
+{% if categories %}
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">Explorar por <span>Categoría</span></h2>
+    </div>
+    <div class="category-filters">
+        {% for cat in categories %}
+        <a href="/browse?category={{ cat }}" class="cat-filter">{{ cat }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- CTA -->
+{% if not user %}
+<div class="section" style="text-align:center; padding: 4rem 2rem;">
+    <h2 style="font-size:2rem; font-weight:800; margin-bottom:1rem;">¿Listo para empezar?</h2>
+    <p style="color:var(--text-2); margin-bottom:2rem;">Regístrate gratis y accede al catálogo completo</p>
+    <a href="/register" class="btn btn-primary" style="font-size:1rem; padding: 1rem 2.5rem;">✦ Crear Cuenta Gratis</a>
+</div>
+{% endif %}
+{% endblock %}
