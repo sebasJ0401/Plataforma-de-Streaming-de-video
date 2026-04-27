@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Planes — StreamVault{% endblock %}
+
+{% block content %}
+<div class="pricing-wrap">
+    <div style="margin-bottom:0.5rem; color:var(--accent); font-family:var(--font-display); font-weight:700; font-size:0.85rem; letter-spacing:0.1em;">PRECIOS</div>
+    <h1 class="pricing-title">Elige tu <span style="color:var(--accent);">plan</span></h1>
+    <p class="pricing-sub">Sin compromisos. Cancela cuando quieras.</p>
+
+    <div class="pricing-grid">
+        <!-- FREE PLAN -->
+        <div class="pricing-card">
+            <div class="plan-name">Plan Gratuito</div>
+            <div class="plan-price">$0 <span>/ mes</span></div>
+            <ul class="plan-features">
+                <li>Acceso a videos gratuitos</li>
+                <li>Calidad 480p</li>
+                <li>Historial básico</li>
+                <li>Subir videos ilimitados</li>
+                <li style="opacity:0.4; text-decoration:line-through;">Videos Premium</li>
+                <li style="opacity:0.4; text-decoration:line-through;">Calidad 720p HD</li>
+            </ul>
+            {% if not user %}
+            <a href="/register" class="btn btn-secondary" style="width:100%; justify-content:center;">Comenzar Gratis</a>
+            {% elif user.subscription == 'free' %}
+            <button class="btn btn-secondary" style="width:100%; justify-content:center;" disabled>Plan Actual</button>
+            {% else %}
+            <button class="btn btn-secondary" style="width:100%; justify-content:center;" disabled>Plan Básico</button>
+            {% endif %}
+        </div>
+
+        <!-- PREMIUM PLAN -->
+        <div class="pricing-card featured">
+            <div class="plan-name">✦ Plan Premium</div>
+            <div class="plan-price" style="color:var(--gold);">$9.99 <span>/ mes</span></div>
+            <ul class="plan-features">
+                <li>Todo del plan gratuito</li>
+                <li>Acceso a TODO el contenido</li>
+                <li>Calidad 720p HD</li>
+                <li>Recomendaciones personalizadas</li>
+                <li>Sin anuncios</li>
+                <li>Soporte prioritario</li>
+            </ul>
+            {% if not user %}
+            <a href="/register" class="btn btn-gold" style="width:100%; justify-content:center;">Empezar con Premium</a>
+            {% elif user.subscription == 'premium' or user.subscription == 'admin' %}
+            <button class="btn btn-gold" style="width:100%; justify-content:center;" disabled>✓ Plan Activo</button>
+            {% else %}
+            <button class="btn btn-gold upgrade-btn" data-plan="premium" style="width:100%; justify-content:center;">Activar Premium</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="margin-top:3rem; padding:2rem; background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg);">
+        <h3 style="font-size:1rem; margin-bottom:1rem; color:var(--text-2);">🔒 Protección y Seguridad</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; text-align:left;">
+            <div>
+                <div style="font-weight:700; margin-bottom:4px;">DRM Básico</div>
+                <div style="font-size:0.8rem; color:var(--text-3);">El contenido no puede descargarse directamente. Acceso solo vía streaming autenticado.</div>
+            </div>
+            <div>
+                <div style="font-weight:700; margin-bottom:4px;">Acceso Controlado</div>
+                <div style="font-size:0.8rem; color:var(--text-3);">Los archivos de video son accesibles únicamente mediante tokens de sesión autenticados.</div>
+            </div>
+            <div>
+                <div style="font-weight:700; margin-bottom:4px;">Streaming Adaptativo</div>
+                <div style="font-size:0.8rem; color:var(--text-3);">Selección manual de 480p o 720p según tu conexión y plan de suscripción.</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
