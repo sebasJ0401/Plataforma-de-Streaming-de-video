@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Ingresar' if mode == 'login' else 'Registro' }} — StreamVault{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-box fade-up">
+        <div class="form-logo">
+            <a href="/" class="logo" style="justify-content:center;">
+                <span class="logo-icon">▶</span>
+                <span class="logo-text">Stream<strong>Vault</strong></span>
+            </a>
+        </div>
+
+        <h1 class="form-title">
+            {% if mode == 'login' %}Bienvenido de vuelta{% else %}Crear una cuenta{% endif %}
+        </h1>
+        <p class="form-sub">
+            {% if mode == 'login' %}Ingresa a tu cuenta para continuar viendo{% else %}Regístrate gratis y empieza a explorar{% endif %}
+        </p>
+
+        <form id="auth-form" data-mode="{{ mode }}">
+            <div class="error-msg"></div>
+
+            {% if mode == 'register' %}
+            <div class="form-group">
+                <label class="form-label">Nombre de usuario</label>
+                <input type="text" name="username" class="form-input" placeholder="mi_nombre" required autocomplete="username">
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-input" placeholder="correo@ejemplo.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contraseña</label>
+                <input type="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="{{ 'current-password' if mode == 'login' else 'new-password' }}" minlength="6">
+            </div>
+
+            <button type="submit" class="btn btn-primary submit-btn" style="width:100%; justify-content:center; padding:0.9rem;">
+                {% if mode == 'login' %}Ingresar{% else %}Crear cuenta{% endif %}
+            </button>
+        </form>
+
+        <div class="form-divider">o</div>
+
+        <div class="form-link">
+            {% if mode == 'login' %}
+            ¿No tienes cuenta? <a href="/register">Regístrate gratis</a>
+            {% else %}
+            ¿Ya tienes cuenta? <a href="/login">Ingresa aquí</a>
+            {% endif %}
+        </div>
+
+        {% if mode == 'register' %}
+        <div class="form-link" style="margin-top:0.5rem;">
+            <a href="/pricing" style="color:var(--gold);">✦ Ver planes premium</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
