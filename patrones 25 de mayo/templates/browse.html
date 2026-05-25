@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Explorar — StreamVault{% endblock %}
+
+{% block content %}
+<div class="browse-header">
+    <div class="browse-header-inner">
+        <h1 class="browse-title">Explorar Contenido</h1>
+        <div class="search-bar">
+            <div class="search-input-wrap">
+                <span class="search-icon">🔍</span>
+                <input
+                    type="text"
+                    id="search-input"
+                    class="form-input search-input"
+                    placeholder="Buscar videos..."
+                    value="{{ search }}"
+                >
+            </div>
+            <button onclick="doSearch()" class="btn btn-primary">Buscar</button>
+        </div>
+        <div class="category-filters">
+            <a href="/browse" class="cat-filter {{ 'active' if not current_category }}">Todos</a>
+            {% for cat in categories %}
+            <a href="/browse?category={{ cat }}{% if search %}&search={{ search }}{% endif %}" 
+               class="cat-filter {{ 'active' if current_category == cat }}">{{ cat }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    {% if videos %}
+    <div class="section-header">
+        <h2 class="section-title">
+            {% if current_category %}<span>{{ current_category }}</span>{% else %}Todos los Videos{% endif %}
+            {% if search %} — "{{ search }}"{% endif %}
+        </h2>
+        <span style="color:var(--text-3); font-size:0.875rem;">{{ videos|length }} resultado{{ 's' if videos|length != 1 }}</span>
+    </div>
+    <div class="video-grid">
+        {% for video in videos %}
+        <a href="{{ '/watch/' + video.id|string if user else '/login' }}" class="video-card">
+            <div class="video-thumb">
+                {% if video.thumbnail %}
+                <img src="/static/uploads/{{ video.thumbnail }}" alt="{{ video.title }}">
+                {% else %}
+                <div class="thumb-placeholder">🎬</div>
+                {% endif %}
+                <div class="video-thumb-overlay">
+                    <div class="play-circle">{% if user %}▶{% else %}🔒{% endif %}</div>
+                </div>
+                {% if video.is_premium %}
+                <div class="premium-lock">PRO</div>
+                {% endif %}
+            </div>
+            <div class="video-info">
+                <div class="video-title">{{ video.title }}</div>
+                <div class="video-meta">
+                    <span class="category-tag">{{ video.category }}</span>
+                    <span>{{ video.views }} vistas</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🎬</div>
+        <h3>No se encontraron videos</h3>
+        <p>{% if search %}Prueba con otro término de búsqueda{% else %}Sé el primero en subir contenido{% endif %}</p>
+        {% if user %}
+        <a href="/upload" class="btn btn-primary" style="margin-top:1.5rem;">Subir Video</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function doSearch() {
+    const q = document.getElementById('search-input').value;
+    const cat = '{{ current_category }}';
+    let url = '/browse?search=' + encodeURIComponent(q);
+    if (cat) url += '&category=' + encodeURIComponent(cat);
+    window.location.href = url;
+}
+document.getElementById('search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doSearch();
+});
+</script>
+{% endblock %}

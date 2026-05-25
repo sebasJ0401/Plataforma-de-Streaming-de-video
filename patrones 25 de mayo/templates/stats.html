@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Mis Estadísticas — StreamVault{% endblock %}
+
+{% block content %}
+<div style="max-width:900px; margin:0 auto; padding:2rem 1rem;">
+
+    <h1 style="font-size:2rem; margin-bottom:0.5rem;">📊 Panel de Estadísticas</h1>
+    <p style="color:var(--text-3); margin-bottom:2rem; font-size:0.875rem;">
+        
+    </p>
+
+    <!-- TARJETAS RESUMEN -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:2rem;">
+
+        <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; text-align:center;">
+            <div style="font-size:2rem; font-weight:800; color:var(--accent);">{{ stats.total_videos }}</div>
+            <div style="font-size:0.8rem; color:var(--text-3); margin-top:4px;">Videos subidos</div>
+        </div>
+
+        <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; text-align:center;">
+            <div style="font-size:2rem; font-weight:800; color:#FAC775;">{{ stats.total_views }}</div>
+            <div style="font-size:0.8rem; color:var(--text-3); margin-top:4px;">Vistas totales</div>
+        </div>
+
+        <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; text-align:center;">
+            <div style="font-size:2rem; font-weight:800; color:#4ade80;">{{ stats.unique_watchers }}</div>
+            <div style="font-size:0.8rem; color:var(--text-3); margin-top:4px;">Espectadores únicos</div>
+        </div>
+
+        <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; text-align:center;">
+            <div style="font-size:1.2rem; font-weight:800; color:#a78bfa;">{{ stats.top_category }}</div>
+            <div style="font-size:0.8rem; color:var(--text-3); margin-top:4px;">Categoría top</div>
+        </div>
+
+    </div>
+
+    <!-- VIDEO MÁS POPULAR -->
+    {% if stats.top_video %}
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:2rem;">
+        <h3 style="font-size:1rem; margin-bottom:1rem; color:var(--text-2);">🏆 Video más popular</h3>
+        <a href="/watch/{{ stats.top_video.id }}" style="display:flex; align-items:center; gap:1rem; text-decoration:none; color:inherit;">
+            <div style="width:56px; height:56px; background:var(--bg-4); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">🎬</div>
+            <div>
+                <div style="font-weight:700; font-size:1rem;">{{ stats.top_video.title }}</div>
+                <div style="font-size:0.8rem; color:var(--text-3); margin-top:2px;">
+                    {{ stats.top_video.views }} vistas · {{ stats.top_video.category }}
+                    {% if stats.top_video.is_premium %}<span style="color:#FAC775;"> · ✦ Premium</span>{% endif %}
+                </div>
+            </div>
+            <span style="margin-left:auto; color:var(--accent);">Ver →</span>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- TABLA DE VIDEOS -->
+    {% if stats.videos_sorted %}
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+        <div style="padding:1.5rem 2rem; border-bottom:1px solid var(--border);">
+            <h3 style="font-size:1rem;">Todos tus videos por vistas</h3>
+        </div>
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background:var(--bg-3);">
+                    <th style="padding:0.75rem 1.5rem; text-align:left; font-size:0.78rem; color:var(--text-3); font-weight:600;">#</th>
+                    <th style="padding:0.75rem 1rem; text-align:left; font-size:0.78rem; color:var(--text-3); font-weight:600;">TÍTULO</th>
+                    <th style="padding:0.75rem 1rem; text-align:left; font-size:0.78rem; color:var(--text-3); font-weight:600;">CATEGORÍA</th>
+                    <th style="padding:0.75rem 1rem; text-align:right; font-size:0.78rem; color:var(--text-3); font-weight:600;">VISTAS</th>
+                    <th style="padding:0.75rem 1.5rem; text-align:center; font-size:0.78rem; color:var(--text-3); font-weight:600;">PLAN</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in stats.videos_sorted %}
+                <tr style="border-top:1px solid var(--border);">
+                    <td style="padding:0.9rem 1.5rem; color:var(--text-3); font-size:0.875rem;">{{ loop.index }}</td>
+                    <td style="padding:0.9rem 1rem;">
+                        <a href="/watch/{{ v.id }}" style="font-weight:600; font-size:0.9rem; color:inherit; text-decoration:none;">{{ v.title }}</a>
+                    </td>
+                    <td style="padding:0.9rem 1rem;">
+                        <span class="category-tag" style="font-size:0.75rem;">{{ v.category }}</span>
+                    </td>
+                    <td style="padding:0.9rem 1rem; text-align:right; font-weight:700; color:var(--accent);">{{ v.views }}</td>
+                    <td style="padding:0.9rem 1.5rem; text-align:center;">
+                        {% if v.is_premium %}
+                        <span style="font-size:0.75rem; color:#FAC775;">✦ Premium</span>
+                        {% else %}
+                        <span style="font-size:0.75rem; color:var(--text-3);">Gratis</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:3rem; color:var(--text-3);">
+        <div style="font-size:3rem; margin-bottom:1rem;">📹</div>
+        <p>Aún no tienes videos subidos. <a href="/upload" style="color:var(--accent);">Sube tu primer video</a></p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
