@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Mis Videos — StreamVault{% endblock %}
+
+{% block content %}
+<div class="dash-wrap">
+    <div class="dash-header">
+        <div>
+            <h1 style="font-size:1.8rem; font-weight:800;">Mis Videos</h1>
+            <p style="color:var(--text-2); margin-top:4px;">Gestiona tu contenido subido</p>
+        </div>
+        <a href="/upload" class="btn btn-primary">↑ Subir Nuevo</a>
+    </div>
+
+    {% if videos %}
+    <div class="video-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Categoría</th>
+                    <th>Calidades</th>
+                    <th>Tipo</th>
+                    <th>Vistas</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for video in videos %}
+                <tr>
+                    <td class="title-cell" style="font-weight:600; max-width:260px;">{{ video.title }}</td>
+                    <td><span class="category-tag">{{ video.category }}</span></td>
+                    <td>
+                        {% if video.filename_480p %}<span style="background:#1e2130; padding:2px 8px; border-radius:4px; font-size:0.75rem; margin-right:4px;">480p</span>{% endif %}
+                        {% if video.filename_720p %}<span style="background:#1e2130; padding:2px 8px; border-radius:4px; font-size:0.75rem;">720p</span>{% endif %}
+                        {% if not video.filename_480p and not video.filename_720p %}<span style="color:var(--text-3); font-size:0.8rem;">Sin archivo</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if video.is_premium %}
+                        <span class="sub-badge">PRO</span>
+                        {% else %}
+                        <span style="color:var(--text-3); font-size:0.8rem;">Gratis</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ video.views }}</td>
+                    <td style="color:var(--text-3); font-size:0.8rem;">{{ video.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="/watch/{{ video.id }}" class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem;">▶</a>
+                            <button class="btn btn-secondary edit-video-btn" data-id="{{ video.id }}" style="padding:6px 12px; font-size:0.8rem;" title="Editar título">✏</button>
+                            <button class="btn btn-danger delete-video-btn" data-id="{{ video.id }}" style="padding:6px 12px; font-size:0.8rem;" title="Eliminar">🗑</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🎬</div>
+        <h3>No has subido videos todavía</h3>
+        <p>Empieza compartiendo tu primer contenido</p>
+        <a href="/upload" class="btn btn-primary" style="margin-top:1.5rem;">Subir Video</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
