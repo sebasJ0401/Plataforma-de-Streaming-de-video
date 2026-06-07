@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}Subir Video — StreamVault{% endblock %}
+
+{% block content %}
+<div class="upload-wrap">
+    <h1 class="form-title" style="text-align:left; font-size:2rem; margin-bottom:0.5rem;">↑ Subir Video</h1>
+    <p style="color:var(--text-2); margin-bottom:2rem;">Comparte tu contenido con la comunidad</p>
+
+    <form id="upload-form" enctype="multipart/form-data">
+
+        <div class="error-msg" id="err"></div>
+        <div class="success-msg" id="succ"></div>
+
+        <!-- TITLE & CATEGORY -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Título del Video *</label>
+                <input type="text" name="title" class="form-input" placeholder="Mi video increíble" required>
+            </div>
+            <div class="form-group" style="margin:0">
+                <label class="form-label">Categoría *</label>
+                <select name="category" class="form-select" required>
+                    <option value="">Seleccionar categoría</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea name="description" class="form-textarea" placeholder="Describe tu video..."></textarea>
+        </div>
+
+        <!-- VIDEO UPLOAD AREAS -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+            <div>
+                <label class="form-label">Video 480p (Estándar)</label>
+                <label class="upload-area" for="video_480p">
+                    <input type="file" id="video_480p" name="video_480p" accept="video/*" style="display:none;">
+                    <div class="upload-icon">📹</div>
+                    <div class="upload-text">Arrastra o <strong>selecciona</strong> video 480p</div>
+                    <div style="font-size:0.75rem; color:var(--text-3); margin-top:8px;">MP4, WebM, MKV hasta 500MB</div>
+                </label>
+            </div>
+            <div>
+                <label class="form-label">Video 720p HD (Opcional)</label>
+                <label class="upload-area" for="video_720p">
+                    <input type="file" id="video_720p" name="video_720p" accept="video/*" style="display:none;">
+                    <div class="upload-icon">🎬</div>
+                    <div class="upload-text">Arrastra o <strong>selecciona</strong> video 720p</div>
+                    <div style="font-size:0.75rem; color:var(--text-3); margin-top:8px;">Recomendado para usuarios Premium</div>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Miniatura (Thumbnail)</label>
+            <label class="upload-area" for="thumbnail" style="padding:1.5rem;">
+                <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="display:none;">
+                <div class="upload-text">🖼️ Arrastra o <strong>selecciona</strong> una imagen</div>
+                <div style="font-size:0.75rem; color:var(--text-3); margin-top:4px;">JPG, PNG recomendado 16:9</div>
+            </label>
+        </div>
+
+        <!-- SUBTÍTULOS — Decorator Pattern -->
+        <div class="form-group">
+            <label class="form-label">Subtítulos (Opcional) — <span style="color:#4ade80; font-size:0.78rem;">Patrón Decorator</span></label>
+            <label class="upload-area" for="subtitle" style="padding:1.5rem;">
+                <input type="file" id="subtitle" name="subtitle" accept=".vtt" style="display:none;">
+                <div class="upload-text">💬 Arrastra o <strong>selecciona</strong> archivo de subtítulos</div>
+                <div style="font-size:0.75rem; color:var(--text-3); margin-top:4px;">Solo formato .vtt — WebVTT</div>
+            </label>
+            <div id="subtitle-name" style="font-size:0.8rem; color:#4ade80; margin-top:0.5rem; display:none;"></div>
+        </div>
+
+        <div class="form-group">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <input type="checkbox" name="is_premium" value="true" id="is_premium_toggle">
+                <span class="form-label" style="margin:0; cursor:pointer;">Contenido Premium (solo para suscriptores)</span>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <input type="checkbox" name="is_adult_content" value="true" id="is_adult_toggle">
+                <span class="form-label" style="margin:0; cursor:pointer;">
+                    🔞 Contenido para mayores de 18 años
+                    <span style="font-size:0.75rem; color:var(--text-3); display:block; font-weight:400; margin-top:2px;">
+                        Será bloqueado por el control parental — Patrón State
+                    </span>
+                </span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary submit-btn" style="width:100%; justify-content:center; padding:1rem; font-size:1rem;">
+            ↑ Subir Video
+        </button>
+
+        <!-- BORRADORES — Memento Pattern -->
+        <div style="margin-top:1.5rem; background:var(--bg-3); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                    <span style="font-weight:700; font-size:0.9rem;">💾 Borradores</span>
+                    <span style="font-size:0.75rem; color:var(--text-3); margin-left:0.5rem;">Patrón Memento</span>
+                </div>
+                <button type="button" id="save-draft-btn"
+                    style="background:var(--bg-4); border:1px solid var(--border); color:var(--text-2); padding:0.4rem 0.9rem; border-radius:6px; cursor:pointer; font-size:0.8rem;">
+                    💾 Guardar borrador
+                </button>
+            </div>
+            <div id="drafts-list" style="font-size:0.8rem; color:var(--text-3);">
+                Cargando borradores...
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function apiFetch(url, method = 'GET', body = null) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(url, opts);
+    return res.json();
+}
+
+// Fix is_premium checkbox
+document.getElementById('is_premium_toggle').addEventListener('change', function() {
+    this.value = this.checked ? 'true' : 'false';
+});
+
+// Fix is_adult_content checkbox
+document.getElementById('is_adult_toggle').addEventListener('change', function() {
+    this.value = this.checked ? 'true' : 'false';
+});
+
+// Mostrar nombre del archivo de subtítulos
+document.getElementById('subtitle').addEventListener('change', function() {
+    const nameEl = document.getElementById('subtitle-name');
+    if (this.files[0]) {
+        nameEl.style.display = 'block';
+        nameEl.textContent = '✓ Subtítulo seleccionado: ' + this.files[0].name;
+    } else {
+        nameEl.style.display = 'none';
+    }
+});
+
+// ── Memento — guardar borrador ────────────────────────────────────────────────
+document.getElementById('save-draft-btn').addEventListener('click', async () => {
+    const form  = document.getElementById('upload-form');
+    const label = prompt('Nombre del borrador (opcional):', 'Borrador ' + new Date().toLocaleTimeString());
+    if (label === null) return;
+
+    const res = await apiFetch('/api/draft', 'POST', {
+        title:       form.querySelector('[name=title]').value,
+        description: form.querySelector('[name=description]').value,
+        category:    form.querySelector('[name=category]').value,
+        is_premium:  form.querySelector('[name=is_premium]').checked,
+        label:       label
+    });
+
+    if (res.success) {
+        loadDrafts();
+        const btn = document.getElementById('save-draft-btn');
+        btn.textContent = '✓ Guardado';
+        btn.style.color = '#4ade80';
+        setTimeout(() => {
+            btn.textContent = '💾 Guardar borrador';
+            btn.style.color = '';
+        }, 2000);
+    }
+});
+
+// ── Memento — cargar borradores ───────────────────────────────────────────────
+async function loadDrafts() {
+    const res  = await apiFetch('/api/draft');
+    const list = document.getElementById('drafts-list');
+
+    if (!res.drafts || res.drafts.length === 0) {
+        list.innerHTML = '<span style="color:var(--text-3);">No hay borradores guardados.</span>';
+        return;
+    }
+
+    list.innerHTML = res.drafts.map((d, i) => `
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0.75rem; background:var(--bg-2); border:1px solid var(--border); border-radius:8px; margin-bottom:0.5rem;">
+            <div>
+                <span style="font-weight:600; color:var(--text-1);">${d.label || 'Sin nombre'}</span>
+                <span style="color:var(--text-3); margin-left:0.5rem; font-size:0.75rem;">${d.saved_at}</span>
+                <div style="font-size:0.75rem; color:var(--text-3); margin-top:2px;">${d.title || 'Sin título'} · ${d.category || 'Sin categoría'}</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+                <button onclick="restoreDraft(${i})"
+                    style="background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.3); color:#4ade80; padding:0.3rem 0.7rem; border-radius:6px; cursor:pointer; font-size:0.75rem;">
+                    ↩ Restaurar
+                </button>
+                <button onclick="deleteDraft(${i})"
+                    style="background:rgba(230,57,70,0.1); border:1px solid rgba(230,57,70,0.3); color:#e63946; padding:0.3rem 0.7rem; border-radius:6px; cursor:pointer; font-size:0.75rem;">
+                    🗑
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function restoreDraft(index) {
+    const res = await apiFetch(`/api/draft/${index}`);
+    if (!res.success) return;
+    const d    = res.draft;
+    const form = document.getElementById('upload-form');
+    form.querySelector('[name=title]').value       = d.title || '';
+    form.querySelector('[name=description]').value = d.description || '';
+    form.querySelector('[name=category]').value    = d.category || '';
+    form.querySelector('[name=is_premium]').checked = d.is_premium || false;
+}
+
+async function deleteDraft(index) {
+    await apiFetch(`/api/draft/${index}`, 'DELETE');
+    loadDrafts();
+}
+
+loadDrafts();
+</script>
+{% endblock %}

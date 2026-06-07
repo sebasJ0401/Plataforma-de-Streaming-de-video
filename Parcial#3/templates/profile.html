@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil — StreamVault{% endblock %}
+
+{% block content %}
+<div class="profile-wrap">
+    <div class="profile-header">
+        <div class="profile-avatar">{{ user.username[0].upper() }}</div>
+        <div class="profile-info">
+            <h2>{{ user.username }}</h2>
+            <p>{{ user.email }}</p>
+            <div class="subscription-chip {{ 'premium' if user.subscription != 'free' else 'free' }}">
+                {% if user.subscription == 'premium' %}✦ Premium{% elif user.subscription == 'admin' %}🛡 Admin{% else %}Gratis{% endif %}
+            </div>
+            {% if user.subscription == 'free' %}
+            <a href="/pricing" class="btn btn-gold" style="margin-top:1rem; display:inline-flex;">Upgrade a Premium</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE FORM — Command Pattern -->
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2rem; margin-bottom:2rem;">
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Editar Perfil</h3>
+        <p style="font-size:0.8rem; color:var(--text-3); margin-bottom:1.5rem;">Cada cambio puede deshacerse con el botón de deshacer — Patrón Command</p>
+        <form id="profile-form">
+            <div id="profile-msg" style="display:none; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1rem; font-size:0.875rem;"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">Nombre de usuario</label>
+                    <input type="text" name="username" class="form-input" value="{{ user.username }}">
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label class="form-label">Nueva contraseña</label>
+                    <input type="password" name="password" class="form-input" placeholder="Dejar vacío para no cambiar">
+                </div>
+            </div>
+            <div style="display:flex; gap:0.75rem; margin-top:1.2rem;">
+                <button type="submit" class="btn btn-secondary">Guardar Cambios</button>
+                <button type="button" id="undo-btn" class="btn" style="background:var(--bg-4); color:var(--text-2); border:1px solid var(--border);">↩ Deshacer último cambio</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- PARENTAL CONTROL — State Pattern -->
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2rem; margin-bottom:2rem;">
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Control Parental</h3>
+        <p style="font-size:0.8rem; color:var(--text-3); margin-bottom:1.5rem;">Activa un PIN para restringir contenido — Patrón State</p>
+
+        <div id="parental-status" style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
+            <span id="parental-label" style="font-size:0.9rem; font-weight:600;">Cargando...</span>
+        </div>
+
+        <div id="parental-msg" style="display:none; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1rem; font-size:0.875rem;"></div>
+
+        <form id="parental-form" style="display:flex; gap:0.75rem; align-items:flex-end;">
+            <div class="form-group" style="margin:0; flex:1;">
+                <label class="form-label">PIN de 4 dígitos</label>
+                <input type="password" id="parental-pin" class="form-input" placeholder="••••" maxlength="4" pattern="[0-9]{4}" style="letter-spacing:4px; font-size:1.2rem;">
+            </div>
+            <button type="submit" id="parental-btn" class="btn btn-secondary">Activar / Desactivar</button>
+        </form>
+    </div>
+
+    <!-- LOGROS — Observer Pattern -->
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2rem; margin-bottom:2rem;">
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">🏅 Logros y Medallas</h3>
+        <p style="font-size:0.8rem; color:var(--text-3); margin-bottom:1.5rem;">Desbloqueados automáticamente por tus acciones — Patrón Observer</p>
+        <div id="achievements-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:1rem;">
+            <div style="color:var(--text-3); font-size:0.875rem;">Cargando logros...</div>
+        </div>
+        <div style="margin-top:1rem;">
+            <a href="/stats" style="font-size:0.8rem; color:var(--accent);">📊 Ver estadísticas completas →</a>
+        </div>
+    </div>
+
+    <!-- WATCH HISTORY -->
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:2rem;">
+        <div style="padding:1.5rem 2rem; border-bottom:1px solid var(--border);">
+            <h3 style="font-size:1.1rem;">Historial de Reproducción</h3>
+        </div>
+        {% if history %}
+        <div>
+            {% for h in history %}
+            <a href="/watch/{{ h.video_id }}" style="display:flex; align-items:center; gap:1rem; padding:1rem 2rem; border-bottom:1px solid var(--border); text-decoration:none; color:inherit; transition:background 0.15s;">
+                <div style="width:40px; height:40px; background:var(--bg-4); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">🎬</div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:0.9rem;">{{ h.video.title if h.video else 'Video eliminado' }}</div>
+                    <div style="font-size:0.78rem; color:var(--text-3);">{{ h.watched_at.strftime('%d %b %Y · %H:%M') }}</div>
+                </div>
+                <span style="color:var(--text-3); font-size:0.8rem;">▶</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:3rem;">
+            <div class="empty-icon">📺</div>
+            <h3>Sin historial</h3>
+            <p><a href="/browse" style="color:var(--accent);">Explorar videos</a> para comenzar</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- LOGROS — Observer Pattern -->
+    <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2rem;">
+        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">🏅 Logros y Medallas</h3>
+        <p style="font-size:0.8rem; color:var(--text-3); margin-bottom:1.5rem;">Se desbloquean automáticamente al realizar acciones — Patrón Observer</p>
+        <div id="achievements-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:1rem;">
+            <!-- Logro 1 -->
+            <div id="ach-welcome" class="achievement-card locked" style="background:var(--bg-4); border:1px solid var(--border); border-radius:12px; padding:1.25rem; text-align:center; opacity:0.4; transition:all 0.3s;">
+                <div style="font-size:2rem; margin-bottom:0.5rem;">🎉</div>
+                <div style="font-weight:700; font-size:0.875rem; margin-bottom:0.25rem;">Bienvenido</div>
+                <div style="font-size:0.75rem; color:var(--text-3);">Regístrate en StreamVault</div>
+            </div>
+            <!-- Logro 2 -->
+            <div id="ach-upload" class="achievement-card locked" style="background:var(--bg-4); border:1px solid var(--border); border-radius:12px; padding:1.25rem; text-align:center; opacity:0.4; transition:all 0.3s;">
+                <div style="font-size:2rem; margin-bottom:0.5rem;">🎬</div>
+                <div style="font-weight:700; font-size:0.875rem; margin-bottom:0.25rem;">Primer Video</div>
+                <div style="font-size:0.75rem; color:var(--text-3);">Sube tu primer video</div>
+            </div>
+            <!-- Logro 3 -->
+            <div id="ach-viewer" class="achievement-card locked" style="background:var(--bg-4); border:1px solid var(--border); border-radius:12px; padding:1.25rem; text-align:center; opacity:0.4; transition:all 0.3s;">
+                <div style="font-size:2rem; margin-bottom:0.5rem;">👁️</div>
+                <div style="font-weight:700; font-size:0.875rem; margin-bottom:0.25rem;">Espectador Activo</div>
+                <div style="font-size:0.75rem; color:var(--text-3);">Ve 5 videos</div>
+            </div>
+            <!-- Logro 4 -->
+            <div id="ach-premium" class="achievement-card locked" style="background:var(--bg-4); border:1px solid var(--border); border-radius:12px; padding:1.25rem; text-align:center; opacity:0.4; transition:all 0.3s;">
+                <div style="font-size:2rem; margin-bottom:0.5rem;">⭐</div>
+                <div style="font-weight:700; font-size:0.875rem; margin-bottom:0.25rem;">Usuario Premium</div>
+                <div style="font-size:0.75rem; color:var(--text-3);">Actualiza tu plan</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Command — deshacer cambios de perfil ──────────────────────────────────────
+document.getElementById('undo-btn').addEventListener('click', async () => {
+    const msg = document.getElementById('profile-msg');
+    const res = await apiFetch('/api/profile/undo', 'POST');
+    msg.style.display = 'block';
+    if (res.success) {
+        msg.style.background = 'rgba(34,197,94,0.15)';
+        msg.style.color = '#4ade80';
+        msg.style.border = '1px solid rgba(34,197,94,0.3)';
+        msg.textContent = res.message;
+    } else {
+        msg.style.background = 'rgba(230,57,70,0.15)';
+        msg.style.color = '#e63946';
+        msg.style.border = '1px solid rgba(230,57,70,0.3)';
+        msg.textContent = res.error;
+    }
+});
+
+// ── State — control parental ──────────────────────────────────────────────────
+async function loadParentalStatus() {
+    const res = await apiFetch('/api/parental/status');
+    const label = document.getElementById('parental-label');
+    label.textContent = res.parental_label;
+    label.style.color = res.parental_active ? '#e63946' : '#4ade80';
+}
+
+document.getElementById('parental-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pin = document.getElementById('parental-pin').value;
+    const msg = document.getElementById('parental-msg');
+    if (pin.length !== 4) {
+        msg.style.display = 'block';
+        msg.style.background = 'rgba(230,57,70,0.15)';
+        msg.style.color = '#e63946';
+        msg.style.border = '1px solid rgba(230,57,70,0.3)';
+        msg.textContent = 'El PIN debe tener 4 dígitos';
+        return;
+    }
+    const res = await apiFetch('/api/parental', 'POST', {pin});
+    msg.style.display = 'block';
+    if (res.success) {
+        msg.style.background = 'rgba(34,197,94,0.15)';
+        msg.style.color = '#4ade80';
+        msg.style.border = '1px solid rgba(34,197,94,0.3)';
+        msg.textContent = res.message;
+        document.getElementById('parental-pin').value = '';
+        loadParentalStatus();
+    } else {
+        msg.style.background = 'rgba(230,57,70,0.15)';
+        msg.style.color = '#e63946';
+        msg.style.border = '1px solid rgba(230,57,70,0.3)';
+        msg.textContent = res.error || res.message;
+    }
+});
+
+loadParentalStatus();
+
+// ── Observer — cargar logros ──────────────────────────────────────────────────
+async function loadAchievements() {
+    const res  = await apiFetch('/api/achievements');
+    const grid = document.getElementById('achievements-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    (res.unlocked || []).forEach(a => {
+        grid.innerHTML += `
+        <div style="background:rgba(250,199,117,0.08); border:1px solid rgba(250,199,117,0.25); border-radius:12px; padding:1.25rem; text-align:center;">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">${a.icon}</div>
+            <div style="font-weight:700; font-size:0.875rem; color:#FAC775;">${a.title}</div>
+            <div style="font-size:0.75rem; color:var(--text-3); margin-top:4px;">${a.desc}</div>
+        </div>`;
+    });
+
+    (res.locked || []).forEach(a => {
+        grid.innerHTML += `
+        <div style="background:var(--bg-3); border:1px solid var(--border); border-radius:12px; padding:1.25rem; text-align:center; opacity:0.45;">
+            <div style="font-size:2rem; margin-bottom:0.5rem; filter:grayscale(1);">${a.icon}</div>
+            <div style="font-weight:700; font-size:0.875rem; color:var(--text-3);">🔒 ${a.title}</div>
+            <div style="font-size:0.75rem; color:var(--text-3); margin-top:4px;">${a.desc}</div>
+        </div>`;
+    });
+}
+
+loadAchievements();
+</script>
+{% endblock %}
